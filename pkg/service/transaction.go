@@ -6,12 +6,12 @@ import (
 	"context"
 )
 
-type transaction struct {
+type Transaction struct {
 	DB *db.DB
 }
 
-func NewTransaction(db *db.DB) *transaction {
-	return &transaction{DB: db}
+func NewTransaction(db *db.DB) *Transaction {
+	return &Transaction{DB: db}
 }
 
 type TransactionInterface interface {
@@ -19,10 +19,10 @@ type TransactionInterface interface {
 	CountTransaction(ctx context.Context, userId int64) (int64, error)
 }
 
-func (t *transaction) FindTransaction(ctx context.Context, userId int64) ([]*model.Transaction, error) {
+func (t *Transaction) FindTransaction(ctx context.Context, userId int64) ([]*model.Transaction, error) {
 	return nil, nil
 }
 
-func (t *transaction) CountTransaction(ctx context.Context, userId int64) (int64, error) {
+func (t *Transaction) CountTransaction(ctx context.Context, userId int64) (int64, error) {
 	return 0, nil
 }

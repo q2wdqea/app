@@ -1,12 +1,34 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"app/config"
+	"app/internal"
+	"app/pkg/db"
+	"app/pkg/service"
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	ginServer := gin.Default()
-	ginServer.GET("/hello", func(context *gin.Context) {
-		context.JSON(200, gin.H{"message": "hello world"})
-	})
-	//服务器端口
-	ginServer.Run(":9090") /*默认是8080*/
+	// init db
+	db := db.NewDB(config.Cfg)
+
+	// init service
+	walletService := service.NewWallet(db)
+	transactionService := service.NewTransaction(db)
+
+	// init controller
+	walletController := internal.NewWallet(transactionService, walletService)
+	transactionController := internal.NewTransaction(transactionService, walletService)
+
+	// init web framework
+	r := gin.Default()
+	v1Group := r.Group("v1")
+	{
+		v1Group.GET("/balance", walletController.Balance)
+		v1Group.GET("/view/transaction", transactionController.ViewTransaction)
+		v1Group.GET("/deposit", transactionController.Deposit)
+		v1Group.GET("/transfer", transactionController.Transfer)
+		v1Group.GET("/withdraw", transactionController.Withdraw)
+	}
+	r.Run(":9090")
 }

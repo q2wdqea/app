@@ -1,16 +1,18 @@
 package db
 
 import (
+	"app/config"
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 )
 
 type DB struct {
 	DB *sql.DB
 }
 
-func NewDB(uname, pwd, dbname string) *DB {
-	dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", uname, pwd, dbname)
+func NewDB(cfg *config.Config) *DB {
+	dsn := fmt.Sprintf("user=%s password=%s host=%s dbname=%s sslmode=disable", cfg.DB.User, cfg.DB.Password, cfg.DB.Host, cfg.DB.Database)
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		panic(err.Error())

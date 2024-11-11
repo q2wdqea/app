@@ -1,2 +1,11 @@
 # Build Geth in a stock Go builder container
 FROM golang:1.23-alpine AS builder
+
+# Set work dir app
+WORKDIR /app
+# Copy current all file to app
+COPY . .
+RUN cd ./cmd/main
+RUN go build -o app
+
+CMD ["./app"]

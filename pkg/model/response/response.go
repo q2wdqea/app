@@ -1,4 +1,4 @@
-package model
+package response
 
 import (
 	"net/http"
@@ -12,11 +12,6 @@ type Response struct {
 	Msg  string      `json:"msg"`
 }
 
-const (
-	ERROR   = 7
-	SUCCESS = 0
-)
-
 func Result(code int, data interface{}, msg string, c *gin.Context) {
 	// 开始时间
 	c.JSON(http.StatusOK, Response{
@@ -27,37 +22,37 @@ func Result(code int, data interface{}, msg string, c *gin.Context) {
 }
 
 func Ok(c *gin.Context) {
-	Result(SUCCESS, map[string]interface{}{}, "操作成功", c)
+	Result(http.StatusOK, map[string]interface{}{}, "success", c)
 }
 
 func OkWithMessage(message string, c *gin.Context) {
-	Result(SUCCESS, map[string]interface{}{}, message, c)
+	Result(http.StatusOK, map[string]interface{}{}, message, c)
 }
 
 func OkWithData(data interface{}, c *gin.Context) {
-	Result(SUCCESS, data, "成功", c)
+	Result(http.StatusOK, data, "success", c)
 }
 
 func OkWithDetailed(data interface{}, message string, c *gin.Context) {
-	Result(SUCCESS, data, message, c)
+	Result(http.StatusOK, data, message, c)
 }
 
 func Fail(c *gin.Context) {
-	Result(ERROR, map[string]interface{}{}, "操作失败", c)
+	Result(http.StatusInternalServerError, map[string]interface{}{}, "error", c)
 }
 
 func FailWithMessage(message string, c *gin.Context) {
-	Result(ERROR, map[string]interface{}{}, message, c)
+	Result(http.StatusInternalServerError, map[string]interface{}{}, message, c)
 }
 
 func NoAuth(message string, c *gin.Context) {
 	c.JSON(http.StatusUnauthorized, Response{
-		7,
+		http.StatusUnauthorized,
 		nil,
 		message,
 	})
 }
 
 func FailWithDetailed(data interface{}, message string, c *gin.Context) {
-	Result(ERROR, data, message, c)
+	Result(http.StatusInternalServerError, data, message, c)
 }
