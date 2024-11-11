@@ -18,18 +18,22 @@ func NewTransaction(t *service.Transaction, w *service.Wallet) *transaction {
 	}
 }
 
+// Transfer from one user to another user
 func (t *transaction) Transfer(c *gin.Context) {
 	response.Ok(c)
 }
 
+// Deposit to specify user wallet
 func (t *transaction) Deposit(c *gin.Context) {
 	response.Ok(c)
 }
 
+// Withdraw from specify user wallet
 func (t *transaction) Withdraw(c *gin.Context) {
 	response.Ok(c)
 }
 
+// ViewTransaction get specify user transaction history
 func (t *transaction) ViewTransaction(c *gin.Context) {
 	response.Ok(c)
 }

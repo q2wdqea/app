@@ -18,6 +18,7 @@ func NewWallet(t *service.Transaction, w *service.Wallet) *wallet {
 	}
 }
 
+// Balance Get specify user balance
 func (w *wallet) Balance(c *gin.Context) {
 	response.Ok(c)
 }

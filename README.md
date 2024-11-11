@@ -12,7 +12,7 @@ Before use, PostgreSQL and Docker need to be prepared. Of course, you can also b
 
 ## Step 1: Create Db And Import Script
 
-There are two SQL scripts in the scripts directory. Please create a database named app and import these two scripts into the database
+There are an SQL scripts in the scripts directory. Please create a database named app and import these two scripts into the database
 
 ## Step 2: Check Config
 

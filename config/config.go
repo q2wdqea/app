@@ -6,7 +6,8 @@ import (
 )
 
 type Config struct {
-	DB DB `json:"db"`
+	DB    DB    `json:"db"`
+	Redis Redis `json:"redis"`
 }
 
 type DB struct {
@@ -14,6 +15,12 @@ type DB struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
 	Database string `json:"database"`
+}
+
+type Redis struct {
+	Addr     string `json:"addr"`
+	Password string `json:"password"`
+	Db       int    `json:"db"`
 }
 
 var Cfg *Config

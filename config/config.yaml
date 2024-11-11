@@ -3,3 +3,7 @@ db:
   user: postgres
   password: hs2024!@#
   database: app
+redis:
+  addr: 127.0.0.1:6379
+  password: ""
+  db: 0
