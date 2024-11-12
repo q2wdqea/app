@@ -3,9 +3,10 @@ package cache
 import (
 	"app/config"
 	"context"
-	"github.com/go-redis/redis/v8"
 	"log"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type Cache struct {

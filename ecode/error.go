@@ -1,11 +1,11 @@
 package ecode
 
 const (
-	ParamError     = 400
-	RecordNotFound = 10010
+	ParamError           = 400
+	WalletRecordNotFound = 10010
 )
 
 var Errors = map[int]string{
-	ParamError:     "param error",
-	RecordNotFound: "record not found",
+	ParamError:           "param error",
+	WalletRecordNotFound: "wallet record not found",
 }

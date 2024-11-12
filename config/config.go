@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"os"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -25,7 +26,7 @@ type Redis struct {
 
 var Cfg *Config
 
-func init() {
+func InitConfig() {
 	path, err := os.Getwd()
 	if err != nil {
 		panic(err)

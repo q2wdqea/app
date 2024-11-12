@@ -5,9 +5,10 @@ import (
 	"app/pkg/db"
 	"app/pkg/model"
 	"context"
-	"github.com/lib/pq"
 	"log"
 	"sync"
+
+	"github.com/lib/pq"
 )
 
 type Transaction struct {
@@ -99,6 +100,12 @@ func (t *Transaction) AsyncWithdraws(ctx context.Context, bizIds []int64, wg *sy
 func (t *Transaction) FindTransaction(ctx context.Context, userId int64, page, size int) ([]*model.Transaction, error) {
 	transactions := make([]*model.Transaction, 0)
 	offset := (page - 1) * size
+	if offset < 0 {
+		offset = 0
+	}
+	if size < 0 {
+		size = 10
+	}
 	rows, err := t.DB.QueryContext(ctx, "select id, user_id, biz_type, biz_id, create_time from t_transaction where user_id = $1 limit $2 offset $3", userId, size, offset)
 	if err != nil {
 		return nil, err

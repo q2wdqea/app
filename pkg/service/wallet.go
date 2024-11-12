@@ -6,6 +6,7 @@ import (
 	"app/pkg/model"
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -22,12 +23,22 @@ func NewWallet(db *db.DB, cache *cache.Cache) *Wallet {
 type WalletInterface interface {
 	Withdraw(ctx context.Context, withdraw *model.WithdrawRequest) error
 	Transfer(ctx context.Context, transfer *model.TransferRequest) error
-	Balance(ctx context.Context, userId int64) (*model.Wallet, error)
+	FindOne(ctx context.Context, userId int64) (*model.Wallet, error)
 	Deposit(ctx context.Context, deposit *model.DepositRequest) error
 }
 
 // Withdraw from specify user wallet
 func (w *Wallet) Withdraw(ctx context.Context, withdraw *model.WithdrawRequest) error {
+	if withdraw.Amount <= 0 {
+		return errors.New("the withdrawal amount must be greater than 0")
+	}
+	wallet, err := w.FindOne(ctx, withdraw.UserId)
+	if err != nil {
+		return fmt.Errorf("wallet record not found user_id:%d", withdraw.UserId)
+	}
+	if wallet.Balance < withdraw.Amount {
+		return errors.New("insufficient wallet balance")
+	}
 	toId := strconv.Itoa(int(withdraw.UserId))
 	keys := []string{toId}
 	defer func() {
@@ -54,7 +65,7 @@ func (w *Wallet) Withdraw(ctx context.Context, withdraw *model.WithdrawRequest) 
 		return err
 	}
 	if affected, _ := rst.RowsAffected(); affected < 1 {
-		return errors.New("withdraw rowsAffected balance less than 0")
+		return errors.New("withdraw rows affected balance less than 0")
 	}
 	var lastInsertID int
 	if err = tx.QueryRowContext(ctx, "INSERT INTO t_withdraw (user_id, amount) VALUES ($1, $2) RETURNING id", withdraw.UserId, withdraw.Amount).Scan(&lastInsertID); err != nil {
@@ -71,6 +82,19 @@ func (w *Wallet) Withdraw(ctx context.Context, withdraw *model.WithdrawRequest) 
 
 // Transfer from one user to another user
 func (w *Wallet) Transfer(ctx context.Context, transfer *model.TransferRequest) error {
+	if transfer.Amount <= 0 {
+		return errors.New("the transfer amount must be greater than 0")
+	}
+	wallet, err := w.FindOne(ctx, transfer.FromId)
+	if err != nil {
+		return fmt.Errorf("send wallet record not found user_id:%d", transfer.FromId)
+	}
+	if wallet.Balance < transfer.Amount {
+		return errors.New("insufficient wallet balance")
+	}
+	if _, err = w.FindOne(ctx, transfer.ToId); err != nil {
+		return fmt.Errorf("receive wallet record not found user_id:%d", transfer.ToId)
+	}
 	fromId := strconv.Itoa(int(transfer.FromId))
 	toId := strconv.Itoa(int(transfer.ToId))
 	keys := []string{fromId, toId}
@@ -118,8 +142,8 @@ func (w *Wallet) Transfer(ctx context.Context, transfer *model.TransferRequest) 
 	return nil
 }
 
-// Balance get specify user balance
-func (w *Wallet) Balance(ctx context.Context, userId int64) (*model.Wallet, error) {
+// FindOne get specify user balance
+func (w *Wallet) FindOne(ctx context.Context, userId int64) (*model.Wallet, error) {
 	var wallet model.Wallet
 	row := w.DB.QueryRowContext(ctx, "select id, user_id, balance, create_time from t_wallet where user_id = $1", userId)
 	if err := row.Scan(&wallet.Id, &wallet.UserId, &wallet.Balance, &wallet.CreateTime); err != nil {
@@ -130,6 +154,12 @@ func (w *Wallet) Balance(ctx context.Context, userId int64) (*model.Wallet, erro
 
 // Deposit to specify user wallet
 func (w *Wallet) Deposit(ctx context.Context, deposit *model.DepositRequest) error {
+	if deposit.Amount <= 0 {
+		return errors.New("the deposit amount must be greater than 0")
+	}
+	if _, err := w.FindOne(ctx, deposit.UserId); err != nil {
+		return fmt.Errorf("wallet record not found user_id:%d", deposit.UserId)
+	}
 	fromId := strconv.Itoa(int(deposit.UserId))
 	keys := []string{fromId}
 	defer func() {

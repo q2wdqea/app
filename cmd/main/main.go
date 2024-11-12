@@ -7,10 +7,13 @@ import (
 	"app/pkg/db"
 	"app/pkg/service"
 	"context"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	// init config
+	config.InitConfig()
 	ctx := context.Background()
 	// new db
 	db := db.NewDB(ctx, config.Cfg)

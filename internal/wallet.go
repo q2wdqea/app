@@ -5,10 +5,11 @@ import (
 	"app/pkg/model"
 	"app/pkg/model/response"
 	"app/pkg/service"
-	"github.com/gin-gonic/gin"
 	"sort"
 	"strconv"
 	"sync"
+
+	"github.com/gin-gonic/gin"
 )
 
 type wallet struct {
@@ -125,7 +126,7 @@ func (w *wallet) Balance(c *gin.Context) {
 		response.ParamError(c, ecode.Errors[ecode.ParamError])
 		return
 	}
-	balance, err := w.Wallet.Balance(c, int64(uid))
+	balance, err := w.Wallet.FindOne(c, int64(uid))
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
