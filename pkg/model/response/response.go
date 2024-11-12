@@ -42,22 +42,10 @@ func Fail(c *gin.Context) {
 	Result(http.StatusInternalServerError, map[string]interface{}{}, "error", c)
 }
 
-func ParamError(c *gin.Context) {
-	Result(ecode.ParamError, map[string]interface{}{}, ecode.Errors[ecode.ParamError], c)
+func ParamError(c *gin.Context, err string) {
+	Result(ecode.ParamError, map[string]interface{}{}, err, c)
 }
 
 func FailWithMessage(message string, c *gin.Context) {
 	Result(http.StatusInternalServerError, map[string]interface{}{}, message, c)
-}
-
-func NoAuth(message string, c *gin.Context) {
-	c.JSON(http.StatusUnauthorized, Response{
-		http.StatusUnauthorized,
-		nil,
-		message,
-	})
-}
-
-func FailWithDetailed(data interface{}, message string, c *gin.Context) {
-	Result(http.StatusInternalServerError, data, message, c)
 }

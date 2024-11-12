@@ -32,14 +32,14 @@ func (c *Cache) LockMultipleKeys(ctx context.Context, keys []string, timeout tim
 			pipe.SetNX(ctx, key, key, timeout)
 			_, err := pipe.Exec(ctx)
 			if err != nil {
-				log.Fatalf("Failed to lock keys: %v", err)
+				log.Fatalf("failed to lock keys: %v", err)
 				return err
 			}
 		}
 		return nil
 	}, keys...)
 	if err != nil {
-		log.Fatalf("Failed to lock keys: %v", err)
+		log.Fatalf("failed to lock keys: %v", err)
 		return false
 	}
 	return true
@@ -50,12 +50,12 @@ func (c *Cache) ReleaseMultipleLock(ctx context.Context, keys []string) bool {
 	err := c.Watch(ctx, func(tx *redis.Tx) error {
 		err := c.Del(ctx, keys...).Err()
 		if err != nil {
-			log.Printf("Failed to release lock: %v", err)
+			log.Printf("failed to release lock: %v", err)
 		}
 		return nil
 	}, keys...)
 	if err != nil {
-		log.Fatalf("Failed to lock keys: %v", err)
+		log.Fatalf("failed to lock keys: %v", err)
 		return false
 	}
 	return true

@@ -82,6 +82,10 @@ CREATE TABLE "public"."t_wallet" (
 ALTER TABLE "public"."t_wallet"
     OWNER TO "postgres";
 
+CREATE UNIQUE INDEX "t_wallet_user_id_idx" ON "public"."t_wallet" USING btree (
+    "user_id" "pg_catalog"."int4_ops" ASC NULLS LAST
+    );
+
 COMMENT ON COLUMN "public"."t_wallet"."id" IS '主键ID';
 
 COMMENT ON COLUMN "public"."t_wallet"."user_id" IS '用户ID';

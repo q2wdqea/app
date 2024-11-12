@@ -33,3 +33,7 @@ Please check the configuration information of the config file in the config dire
     docker run -it -d -p 9090:9090 app
 
 The forwarded port is 9090, you can adjust it according to the actual situation, and the default remains unchanged
+
+## Support
+
+For support, email huangsheng7638@gmail.com or commit issue! Developer: Huang Sheng

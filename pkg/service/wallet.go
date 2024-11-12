@@ -20,14 +20,14 @@ func NewWallet(db *db.DB, cache *cache.Cache) *Wallet {
 }
 
 type WalletInterface interface {
-	Withdraw(ctx context.Context, withdraw *model.Withdraw) error
-	Transfer(ctx context.Context, transfer *model.Transfer) error
+	Withdraw(ctx context.Context, withdraw *model.WithdrawRequest) error
+	Transfer(ctx context.Context, transfer *model.TransferRequest) error
 	Balance(ctx context.Context, userId int64) (*model.Wallet, error)
-	Deposit(ctx context.Context, deposit *model.Deposit) error
+	Deposit(ctx context.Context, deposit *model.DepositRequest) error
 }
 
 // Withdraw from specify user wallet
-func (w *Wallet) Withdraw(ctx context.Context, withdraw *model.Withdraw) error {
+func (w *Wallet) Withdraw(ctx context.Context, withdraw *model.WithdrawRequest) error {
 	toId := strconv.Itoa(int(withdraw.UserId))
 	keys := []string{toId}
 	defer func() {
@@ -70,7 +70,7 @@ func (w *Wallet) Withdraw(ctx context.Context, withdraw *model.Withdraw) error {
 }
 
 // Transfer from one user to another user
-func (w *Wallet) Transfer(ctx context.Context, transfer *model.Transfer) error {
+func (w *Wallet) Transfer(ctx context.Context, transfer *model.TransferRequest) error {
 	fromId := strconv.Itoa(int(transfer.FromId))
 	toId := strconv.Itoa(int(transfer.ToId))
 	keys := []string{fromId, toId}
@@ -93,16 +93,16 @@ func (w *Wallet) Transfer(ctx context.Context, transfer *model.Transfer) error {
 			tx.Commit()
 		}
 	}()
-	_, err = tx.ExecContext(ctx, "UPDATE t_wallet SET balance = balance + $1 WHERE user_id = $2", transfer.ToId, transfer.Amount)
+	_, err = tx.ExecContext(ctx, "UPDATE t_wallet SET balance = balance + $1 WHERE user_id = $2", transfer.Amount, transfer.ToId)
 	if err != nil {
 		return err
 	}
-	rst, err := tx.ExecContext(ctx, "UPDATE t_wallet SET balance = balance - $1 WHERE user_id = $2 and balance - $3 >= 0", transfer.FromId, transfer.Amount, transfer.Amount)
+	rst, err := tx.ExecContext(ctx, "UPDATE t_wallet SET balance = balance - $1 WHERE user_id = $2 and balance - $3 >= 0", transfer.Amount, transfer.FromId, transfer.Amount)
 	if err != nil {
 		return err
 	}
 	if affected, _ := rst.RowsAffected(); affected < 1 {
-		return errors.New("transfer rowsAffected balance less than 0")
+		return errors.New("transfer rows affected balance less than 0")
 	}
 	var lastInsertID int
 	if err = tx.QueryRowContext(ctx, "INSERT INTO t_transfer (from_id, to_id, amount) VALUES ($1, $2, $3) RETURNING id",
@@ -120,16 +120,16 @@ func (w *Wallet) Transfer(ctx context.Context, transfer *model.Transfer) error {
 
 // Balance get specify user balance
 func (w *Wallet) Balance(ctx context.Context, userId int64) (*model.Wallet, error) {
-	var wallet *model.Wallet
+	var wallet model.Wallet
 	row := w.DB.QueryRowContext(ctx, "select id, user_id, balance, create_time from t_wallet where user_id = $1", userId)
-	if err := row.Scan(&wallet); err != nil {
+	if err := row.Scan(&wallet.Id, &wallet.UserId, &wallet.Balance, &wallet.CreateTime); err != nil {
 		return nil, err
 	}
-	return wallet, nil
+	return &wallet, nil
 }
 
 // Deposit to specify user wallet
-func (w *Wallet) Deposit(ctx context.Context, deposit *model.Deposit) error {
+func (w *Wallet) Deposit(ctx context.Context, deposit *model.DepositRequest) error {
 	fromId := strconv.Itoa(int(deposit.UserId))
 	keys := []string{fromId}
 	defer func() {
