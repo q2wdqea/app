@@ -1,5 +1,13 @@
 package model
 
+type TransactionType int
+
+const (
+	TransactionDeposit TransactionType = iota
+	TransactionWithdraw
+	TransactionTransfer
+)
+
 type Transaction struct {
 	Id         int64   `json:"id",db:"id"`
 	FromId     int64   `json:"from_id",db:"from_id"`
@@ -34,4 +42,16 @@ type Transfer struct {
 type TransactionDTO struct {
 	Transactions []*Transaction `json:"transactions"`
 	Total        int64          `json:"total"`
+}
+
+func (t TransactionType) String() string {
+	switch t {
+	case TransactionDeposit:
+		return "Deposit"
+	case TransactionWithdraw:
+		return "Withdraw"
+	case TransactionTransfer:
+		return "Transfer"
+	}
+	return "Unknown"
 }

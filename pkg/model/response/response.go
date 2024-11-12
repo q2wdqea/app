@@ -1,6 +1,7 @@
 package response
 
 import (
+	"app/ecode"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,10 @@ func OkWithDetailed(data interface{}, message string, c *gin.Context) {
 
 func Fail(c *gin.Context) {
 	Result(http.StatusInternalServerError, map[string]interface{}{}, "error", c)
+}
+
+func ParamError(c *gin.Context) {
+	Result(ecode.ParamError, map[string]interface{}{}, ecode.Errors[ecode.ParamError], c)
 }
 
 func FailWithMessage(message string, c *gin.Context) {
